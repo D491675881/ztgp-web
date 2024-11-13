@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>涨停板股池</title>
+    <title>表格展示</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
@@ -82,6 +82,9 @@
         td:nth-child(5), th:nth-child(5) {
             color: red;
         }
+        td:nth-child(4), th:nth-child(4) {
+            color: red;
+        }
         table {
         width: 100%;
         text-align: center; /* 设置表格内文本水平居中 */
@@ -149,11 +152,7 @@
                         newRow.append($("<td>").text(row.zbc));
                         newRow.append($("<td>").text(row.hybk));
                         newRow.append($("<td>").text(formatString(row.fbt+"")));
-                        newRow.append($("<td>").text(formatString(row.lbt+"")));
-
-
-            
-                      
+                        newRow.append($("<td>").text(formatString(row.lbt+"")));                  
                         // 将新行添加到表格中
                         $("#table-body").append(newRow);
                     });
@@ -173,10 +172,10 @@
             return ret;
         }
   
-            // 立即调用一次 updateData 函数，以便在页面加载时显示数据
-            updateData();
-            // 使用 setInterval 函数设置定时器，每2分钟（120000毫秒）调用一次 updateData 函数
-            // setInterval(updateData, 120000);
+        // 立即调用一次 updateData 函数，以便在页面加载时显示数据
+        updateData();
+        // 使用 setInterval 函数设置定时器，每2分钟（120000毫秒）调用一次 updateData 函数
+        // setInterval(updateData, 120000);
         });
         
         function formatString(str) {
@@ -226,23 +225,66 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <!-- <script src="/HTML--CSS--JS/numberFormat.js"></script> -->
-  <script >
-    document.addEventListener('DOMContentLoaded', function() {
-        var table = document.getElementById('myTable');
-        var rows = table.getElementsByTagName('tr');
+  <script>
     
-        for (var i = 1; i < rows.length; i++) { // 从1开始，因为0是表头
-            rows[i].addEventListener('click', function() {
-                var url = this.getAttribute('');
-                if (url) {
-                    window.location.href = url;
-                }
-            });
-        }
-    });
+    // document.getElementById('myTable').addEventListener('click', function(event) {
+    // var target = event.target; // 获取事件触发的目标元素
+    //  // 获取该行的所有单元格（<td>）
+    // const cells = clickedRow.getElementsByTagName('td');
+    // while (target && target.nodeName !== 'TR') { // 循环查找直到找到表格行
+    //     target = target.parentNode;
+    // }
+    // if (target) { // 如果找到了表格行
+    //     event.preventDefault(); // 阻止默认行为
+    //     var rowIndex = target.rowIndex; // 获取行索引
+    //     // 这里可以根据rowIndex做相应处理
+    //     // 跳转到新页面
+    //     // 获取表格元素
+    //     const table = document.getElementById('myTable');
+
+    //     // 获取表格的所有行（包括表头<thead>中的行和<tbody>中的行）
+    //     const rows = table.rows;
+
+    //     // 检查索引是否在有效范围内
+    //     if (rowIndex >= 0 && rowIndex < rows.length) {
+    //     // 获取对应索引的行
+    //     const row = rows[rowIndex];
+
+    //     // 获取该行的所有单元格
+    //     const cells = row.cells;
+    //     const code = cells[2];
+    //     // window.alert("这是一个简单的警告弹窗！"+ target.rowIndex);
+    //     // 遍历单元格并输出数据
     
-    
-    
-      </script>
+
+    //     } 
+
+        
+    // }
+    //                   const customDataCell = cells[1];
+    //                   const customData = customDataCell.getAttribute('data-custom');
+
+    //                   window.alert("这是一个简单的警告弹窗！"+ customDataCell.innerText)
+    //                 // const customData = customDataCell.getAttribute('data-custom');
+    // window.location.href = 'details.html?code='+encodeURIComponent(customDataCell);
+
+    // alert(`Message: ${data}, Success: ${data}`);
+    //   })  
+      // 获取表格元素
+      const table = document.getElementById('myTable');
+
+    // 监听点击事件
+    table.addEventListener('click', function(event) {
+        // 获取点击的行（tr）
+        const clickedRow = event.target.closest('tr');
+    if (clickedRow && clickedRow.rowIndex > 0) { // 跳过表头
+        // 获取第二列的数据
+        const secondColumnData = clickedRow.cells[1].textContent;
+
+        // 跳转到详情页，并将第二列数据作为参数传递
+        window.location.href = `details.html?code=${encodeURIComponent(secondColumnData)}`;
+    }
+});
+</script>
 </body>
 </html>
