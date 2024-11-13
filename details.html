@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基金索引</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* 样式设置 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1080px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            margin: 0;
+        }
+        .header .stock-symbol {
+            color: #888;
+            font-size: 16px;
+        }
+        .stock-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 0;
+        }
+        .stock-info div {
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+        }
+        .stock-info .value {
+            font-size: 24px;
+            color: #333;
+            margin-top: 10px;
+        }
+        .chart-container {
+            height: 300px;
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .data-table th {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .data-table tr:hover {
+            background-color: #f0f8ff;
+        }
+         /* 选择器选择第二列的所有单元格 */
+        td:nth-child(4), th:nth-child(4) {
+            color: red;
+        }
+        table {
+        width: 100%;
+        text-align: center; /* 设置表格内文本水平居中 */
+        border-collapse: collapse; /* 移除单元格之间的间隔 */
+        }  
+        th, td {
+        border: 1px solid black; /* 设置单元格边框 */
+        padding: 10px; /* 设置单元格内边距 */
+        vertical-align: middle; /* 设置单元格内文本垂直居中 */
+        }
+        #refresh-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        
+        // 在 target.html 中
+        // 获取当前页面的 URL
+        const currentUrl = window.location.href;
+
+        // 使用 URLSearchParams 对象来解析查询字符串
+        const params = new URLSearchParams(new URL(currentUrl).search);
+
+        // 获取参数值
+        const code = params.get('code');
+      
+        $(document).ready(function() {
+
+        // 创建一个新的 Date 对象
+        const currentDate = new Date();
+
+        var time ='';
+
+        // 获取当前年份
+        const currentYear = currentDate.getFullYear();
+
+        // 获取当前月份（注意：月份是从0开始的，所以1月返回0，12月返回11）
+        // 如果你想要一个用户友好的月份（即1表示1月，12表示12月），你需要加1
+        const currentMonth = currentDate.getMonth() + 1;
+
+        if (currentMonth >= 1 && currentMonth <= 3) {
+            time = currentYear-1 +'-12-31';   
+        } else if (currentMonth >= 4 && currentMonth <= 6) {
+            time = currentYear +'-03-31'; 
+        } else if (currentMonth >= 7 && currentMonth <= 9) {
+            time = currentYear +'-06-30'; 
+        } else if (currentMonth >= 10 && currentMonth <= 12) {
+            time = currentYear +'-09-30'; 
+        }
+
+        var apiUrl = "https://data.eastmoney.com/dataapi/zlsj/detail?SHType=1&SHCode=1&SCode="+code+"&ReportDate="+time+"&sortField=NETASSET_RATIO&sortDirec=1&pageNum=1&pageSize=20";
+    
+        // 定义一个函数来获取并更新数据
+        function updateData() {
+
+            // 发送 GET 请求获取数据
+            $.get(apiUrl, function(data) {
+                // 解析返回的数据
+                var tableData = data;
+
+                
+                // array = tableData.data.filter(function (element) {
+                // return element.HOLDER_CODE[0] == '1' && element.HOLDER_CODE[0] == '5';
+                // });
+                // tableData.forEach(item => {
+                // const holderCode = item.HOLDER_CODE;
+
+                // // 检查 HOLDER_CODE 是否以 '1' 或 '5' 开头
+                // if (row.HOLDER_CODE[0] !== '1' && row.HOLDER_CODE[0] !== '5') {
+                //     delete item; // 删除不符合条件的 HOLDER_CODE
+                // }
+                // });
+                // 假设数据格式是一个数组，每个元素是表格的一行
+                // 这里我们只展示如何填充表格，实际逻辑可能需要根据接口返回的数据结构进行调整
+                $.each(tableData.data, function(index, row) {
+                    if(row.HOLDER_NAME.includes("ETF")){
+                    // 创建新的表格行
+                    var newRow = $("<tr>");
+                    // 添加序号单元格
+                    newRow.append($("<td>").text(index + 1));
+                    newRow.append($("<td>").text(row.HOLDER_NAME));
+                    newRow.append($("<td>").text(row.HOLDER_CODE));
+                    newRow.append($("<td>").text(row.NETASSET_RATIO !== null ? row.NETASSET_RATIO +"%":"--"));
+
+                    // 将新行添加到表格中
+                    $("#table-body").append(newRow);
+                    }
+                   
+                });
+            });
+        }
+        updateData();
+        })
+        
+
+    </script>
+</head>
+<body>
+  <div class="container">
+    <h2>基金索引</h2>
+    <table class="table table-striped table-bordered table-hover" id="myTable">
+        <thead>
+            <tr>
+              <th><a target="_self" hreflang="javascript:;">序号</a></th>
+              <th><a target="_self" hreflang="javascript:;">基金名称</a></th>
+              <th><a target="_self" hreflang="javascript:;">基金代码</a></th>
+              <th><a target="_self" hreflang="javascript:;">持仓占比</a></th>
+
+                <!-- 根据实际数据结构添加更多的表头 -->
+            </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+    </table>
+  </div>
+  <!-- 引入Bootstrap JS和jQuery（如果需要使用Bootstrap的JavaScript组件） -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
